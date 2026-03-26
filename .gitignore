@@ -1,0 +1,7 @@
+node_modules/
+.next/
+.env.local
+app/data/
+app/public/uploads/*.jpg
+app/public/uploads/*.png
+!app/public/uploads/.gitkeep
