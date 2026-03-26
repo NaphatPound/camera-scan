@@ -31,3 +31,17 @@ export interface ApprovalData {
   visionResult: VisionResult;
   imagePreview: string;
 }
+
+export interface RecipeIngredient {
+  name: string;
+  amount: string;
+  inStock: boolean;
+  stockCount?: number;
+}
+
+export interface RecipeResult {
+  dishName: string;
+  ingredients: RecipeIngredient[];
+  instructions: string;
+  imageUrl?: string;
+}

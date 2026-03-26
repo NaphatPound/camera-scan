@@ -1,16 +1,17 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { PackagePlus, ScanSearch, Package, MessageSquare } from "lucide-react";
+import { PackagePlus, ScanSearch, Package, MessageSquare, ChefHat } from "lucide-react";
 import ChatInterface from "@/components/ChatInterface";
 import StockDashboard from "@/components/StockDashboard";
 import ScanAddStock from "@/components/ScanAddStock";
 import SearchProduct from "@/components/SearchProduct";
 import ApprovalModal from "@/components/ApprovalModal";
+import RecipeFinder from "@/components/RecipeFinder";
 import { ChatMessage, StockItem, ApprovalData, SearchResult } from "@/types";
 import { compressImage } from "@/lib/compressImage";
 
-type MobileTab = "scan" | "chat" | "search" | "stock";
+type MobileTab = "scan" | "chat" | "search" | "recipe" | "stock";
 
 export default function Home() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -285,9 +286,10 @@ export default function Home() {
   }, []);
 
   const tabs: { key: MobileTab; label: string; icon: React.ReactNode }[] = [
-    { key: "scan", label: "Scan & Add", icon: <PackagePlus className="w-4 h-4" /> },
+    { key: "scan", label: "Scan", icon: <PackagePlus className="w-4 h-4" /> },
     { key: "chat", label: "Chat", icon: <MessageSquare className="w-4 h-4" /> },
     { key: "search", label: "Search", icon: <ScanSearch className="w-4 h-4" /> },
+    { key: "recipe", label: "Recipe", icon: <ChefHat className="w-4 h-4" /> },
     { key: "stock", label: "Stock", icon: <Package className="w-4 h-4" /> },
   ];
 
@@ -312,16 +314,16 @@ export default function Home() {
         ))}
       </div>
 
-      {/* Desktop: 4-column layout */}
+      {/* Desktop: 5-column layout */}
       <div className="hidden lg:flex flex-1 gap-3 p-3 overflow-hidden">
-        <div className="w-[25%] h-full">
+        <div className="w-[20%] h-full">
           <ScanAddStock
             messages={messages}
             onImageUpload={handleScanImage}
             isLoading={isLoading}
           />
         </div>
-        <div className="w-[25%] h-full">
+        <div className="w-[20%] h-full">
           <ChatInterface
             messages={messages}
             onSendMessage={handleSendMessage}
@@ -329,7 +331,7 @@ export default function Home() {
             isLoading={isLoading}
           />
         </div>
-        <div className="w-[25%] h-full">
+        <div className="w-[20%] h-full">
           <SearchProduct
             onImageSearch={handleImageSearch}
             searchResults={searchResults}
@@ -341,7 +343,10 @@ export default function Home() {
             textSearchReply={textSearchReply}
           />
         </div>
-        <div className="w-[25%] h-full">
+        <div className="w-[20%] h-full">
+          <RecipeFinder />
+        </div>
+        <div className="w-[20%] h-full">
           <StockDashboard
             items={stockItems}
             onRemoveItem={handleRemoveItem}
@@ -378,6 +383,9 @@ export default function Home() {
             onTextSearch={handleTextSearch}
             textSearchReply={textSearchReply}
           />
+        </div>
+        <div className={`h-full ${activeTab === "recipe" ? "" : "hidden"}`}>
+          <RecipeFinder />
         </div>
         <div className={`h-full ${activeTab === "stock" ? "" : "hidden"}`}>
           <StockDashboard
