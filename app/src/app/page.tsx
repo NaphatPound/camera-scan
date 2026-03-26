@@ -21,6 +21,8 @@ export default function Home() {
   const [searchResults, setSearchResults] = useState<SearchResult[] | null>(null);
   const [searchIdentified, setSearchIdentified] = useState<string>("");
   const [isSearching, setIsSearching] = useState(false);
+  const [textSearchReply, setTextSearchReply] = useState<string>("");
+  const [textSearchHistory, setTextSearchHistory] = useState<{role: string; content: string}[]>([]);
   const [activeTab, setActiveTab] = useState<MobileTab>("scan");
 
   // Load stock on mount
@@ -213,6 +215,40 @@ export default function Home() {
     setSearchIdentified("");
   }, []);
 
+  const handleTextSearch = useCallback(
+    async (query: string) => {
+      try {
+        const response = await fetch("/api/search-text", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query, history: textSearchHistory }),
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+          setTextSearchReply(`Sorry, search failed: ${data.error}`);
+        } else {
+          setTextSearchReply(data.reply);
+          // Update search results if there are matches
+          if (data.results && data.results.length > 0) {
+            setSearchResults(data.results);
+            setSearchIdentified(query);
+          }
+          // Keep conversation history
+          setTextSearchHistory((prev) => [
+            ...prev,
+            { role: "user", content: query },
+            { role: "assistant", content: data.reply },
+          ]);
+        }
+      } catch (error) {
+        setTextSearchReply(`Connection error: ${String(error)}`);
+      }
+    },
+    [textSearchHistory]
+  );
+
   // ========== REFERENCE IMAGES ==========
   const handleAddReferenceImage = useCallback(
     async (itemId: string, image: string) => {
@@ -301,6 +337,8 @@ export default function Home() {
             isSearching={isSearching}
             onClearSearch={handleClearSearch}
             onAddReferenceImage={handleAddReferenceImage}
+            onTextSearch={handleTextSearch}
+            textSearchReply={textSearchReply}
           />
         </div>
         <div className="w-[25%] h-full">
@@ -337,6 +375,8 @@ export default function Home() {
             isSearching={isSearching}
             onClearSearch={handleClearSearch}
             onAddReferenceImage={handleAddReferenceImage}
+            onTextSearch={handleTextSearch}
+            textSearchReply={textSearchReply}
           />
         </div>
         <div className={`h-full ${activeTab === "stock" ? "" : "hidden"}`}>
